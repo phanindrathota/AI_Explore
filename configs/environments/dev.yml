@@ -1,0 +1,5 @@
+database:
+  url: sqlite:///etl_sf_dev.db
+runtime:
+  batch_size: 500
+  dry_run: false

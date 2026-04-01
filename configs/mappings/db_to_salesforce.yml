@@ -1,0 +1,36 @@
+salesforce_mappings:
+  - source_query: "SELECT customer_id, first_name, last_name, email, status FROM dim_customer"
+    object_name: "Account"
+    operation: "upsert"
+    external_id_field: "External_Customer_Id__c"
+    batch_size: 5000
+    depends_on: []
+    field_mappings:
+      - source: "customer_id"
+        target: "External_Customer_Id__c"
+      - source: "first_name"
+        target: "FirstName"
+      - source: "last_name"
+        target: "LastName"
+      - source: "email"
+        target: "PersonEmail"
+      - source: "status"
+        target: "Customer_Status__c"
+
+  - source_query: "SELECT order_id, customer_id, amount, order_date FROM fact_order"
+    object_name: "Order__c"
+    operation: "upsert"
+    external_id_field: "External_Order_Id__c"
+    batch_size: 5000
+    depends_on: ["Account"]
+    field_mappings:
+      - source: "order_id"
+        target: "External_Order_Id__c"
+      - source: "amount"
+        target: "Amount__c"
+      - source: "order_date"
+        target: "Order_Date__c"
+      - source: "customer_id"
+        target: "Customer_External_Id__c"
+      - target: "Source_System__c"
+        default: "LEGACY_APP"

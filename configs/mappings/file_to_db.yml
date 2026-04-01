@@ -1,0 +1,62 @@
+file_mappings:
+  - file_pattern: "customers_*.csv"
+    target_staging_table: "stg_customer"
+    target_table: "dim_customer"
+    parser_options:
+      delimiter: ","
+      quotechar: '"'
+      encoding: "utf-8"
+      has_header: true
+    primary_key: ["customer_id"]
+    load_mode: "incremental"
+    column_mappings:
+      - source: "CustomerID"
+        target: "customer_id"
+        dtype: "str"
+        required: true
+        transform: "trim"
+      - source: "FirstName"
+        target: "first_name"
+        dtype: "str"
+        transform: "trim"
+      - source: "LastName"
+        target: "last_name"
+        dtype: "str"
+        transform: "trim"
+      - source: "Email"
+        target: "email"
+        dtype: "str"
+        transform: "trim"
+      - source: "Status"
+        target: "status"
+        dtype: "str"
+        default: "Active"
+        transform: "upper"
+      - source: "SignupDate"
+        target: "signup_date"
+        dtype: "date"
+
+  - file_pattern: "orders_*.txt"
+    target_staging_table: "stg_order"
+    target_table: "fact_order"
+    parser_options:
+      delimiter: "|"
+      encoding: "utf-8"
+      has_header: true
+    primary_key: ["order_id"]
+    load_mode: "full"
+    column_mappings:
+      - source: "OrderID"
+        target: "order_id"
+        dtype: "str"
+        required: true
+      - source: "CustomerID"
+        target: "customer_id"
+        dtype: "str"
+        required: true
+      - source: "Amount"
+        target: "amount"
+        dtype: "float"
+      - source: "OrderDate"
+        target: "order_date"
+        dtype: "date"
