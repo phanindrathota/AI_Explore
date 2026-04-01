@@ -1,0 +1,4 @@
+database:
+  url: sqlite:///etl_sf_qa.db
+runtime:
+  batch_size: 1000

@@ -1,0 +1,7 @@
+database:
+  url: sqlite:///etl_sf_prod.db
+runtime:
+  batch_size: 5000
+retry:
+  max_attempts: 5
+  backoff_seconds: 10
