@@ -27,6 +27,7 @@ Open `http://127.0.0.1:5000`.
 - Ticker
 - Entry price
 - Exit price
+- Expected return % (optional)
 - Running total profits (optional)
 - Reason for trade
 
