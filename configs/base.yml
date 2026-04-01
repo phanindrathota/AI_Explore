@@ -1,0 +1,32 @@
+paths:
+  input_dir: samples/input
+  archive_dir: samples/archive
+  error_dir: samples/error
+  logs_dir: logs
+
+database:
+  url: sqlite:///etl_sf.db
+  schema: main
+
+salesforce:
+  auth_mode: mock
+  instance_url: https://example.my.salesforce.com
+  username: ${SF_USERNAME}
+  password_env: SF_PASSWORD
+  token_env: SF_TOKEN
+  use_bulk_api: true
+  api_version: "58.0"
+
+retry:
+  max_attempts: 3
+  backoff_seconds: 5
+
+runtime:
+  batch_size: 2000
+  dry_run: false
+  incremental_mode: true
+  enabled_objects:
+    Account: true
+    Contact: true
+
+logging_level: INFO
