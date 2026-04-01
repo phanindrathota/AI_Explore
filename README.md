@@ -1,33 +1,16 @@
-# Trade Log Portal
+# AI Job Agent UI
 
-A Flask-based portal to track and analyze trading logs with:
+A lightweight browser-based dashboard that helps with:
 
-- Manual trade entry
-- Excel/CSV upload
-- Persistent local storage (`data/trade_logs.csv`)
-- Color-coded P/L and trade reasons
-- Year-wise, week-wise, and day-wise summaries
-- CSV export
+1. Searching market jobs
+2. Uploading a resume
+3. ATS-friendly comparison with a job description
+4. Tracking job applications
 
 ## Run locally
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
+python3 -m http.server 4173
 ```
 
-Open `http://127.0.0.1:5000`.
-
-## Expected upload columns
-
-- Date
-- Expiration date
-- Ticker
-- Entry price
-- Exit price
-- Running total profits (optional)
-- Reason for trade
-
-`profit_loss` is calculated automatically as `Exit price - Entry price`.
+Then open `http://localhost:4173`.
