@@ -1,0 +1,4 @@
+CustomerID,FirstName,LastName,Email,Status,SignupDate
+C1001,Ada,Lovelace,ada@example.com,Active,2024-10-12
+C1002,Alan,Turing,alan@example.com,Inactive,2024-11-01
+,Grace,Hopper,grace@example.com,Active,2024-11-09
