@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade Log Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -18,6 +21,7 @@
         <label>Ticker <input type="text" name="ticker" required></label>
         <label>Entry Price <input type="number" step="0.01" name="entry_price" required></label>
         <label>Exit Price <input type="number" step="0.01" name="exit_price" required></label>
+        <label>Expected Return % <input type="number" step="0.01" name="expected_return_pct" placeholder="Optional"></label>
         <label>Running Total Profits <input type="number" step="0.01" name="running_total_profits" placeholder="Auto if empty"></label>
         <label class="full">Reason for Trade <textarea name="reason_for_trade" rows="2" required></textarea></label>
         <button type="submit">Save Trade</button>
@@ -60,6 +64,7 @@
       <div class="kpis">
         <div><strong>Trades:</strong> {{ totals.trade_count }}</div>
         <div><strong>Net P/L:</strong> <span class="pill {% if totals.profit_loss > 0 %}pill-profit{% elif totals.profit_loss < 0 %}pill-loss{% else %}pill-neutral{% endif %}">{{ '%.2f'|format(totals.profit_loss) }}</span></div>
+        <div><strong>Avg Return %:</strong> <span class="pill {% if totals.avg_return_pct > 0 %}pill-profit{% elif totals.avg_return_pct < 0 %}pill-loss{% else %}pill-neutral{% endif %}">{{ '%.2f'|format(totals.avg_return_pct) }}%</span></div>
       </div>
     </section>
 
@@ -69,7 +74,7 @@
       <table>
         <thead>
           <tr>
-            <th>Date</th><th>Expiration</th><th>Ticker</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Running Total</th><th>Reason</th>
+            <th>Date</th><th>Expiration</th><th>Ticker</th><th>Entry</th><th>Exit</th><th>Expected %</th><th>P/L</th><th>P/L %</th><th>Status</th><th>Running Total</th><th>Reason</th>
           </tr>
         </thead>
         <tbody>
@@ -80,13 +85,15 @@
             <td>{{ r.ticker }}</td>
             <td>{{ '%.2f'|format(r.entry_price) }}</td>
             <td>{{ '%.2f'|format(r.exit_price) }}</td>
+            <td class="{% if r.expected_return_pct > 0 %}profit{% elif r.expected_return_pct < 0 %}loss{% else %}neutral{% endif %}">{{ '%.2f'|format(r.expected_return_pct) }}%</td>
             <td class="{% if r.profit_loss > 0 %}profit{% elif r.profit_loss < 0 %}loss{% else %}neutral{% endif %}">{{ '%.2f'|format(r.profit_loss) }}</td>
+            <td class="{% if r.profit_loss_pct > 0 %}profit{% elif r.profit_loss_pct < 0 %}loss{% else %}neutral{% endif %}">{{ '%.2f'|format(r.profit_loss_pct) }}%</td>
             <td><span class="pill {% if r.profit_loss > 0 %}pill-profit{% elif r.profit_loss < 0 %}pill-loss{% else %}pill-neutral{% endif %}">{% if r.profit_loss > 0 %}Profit{% elif r.profit_loss < 0 %}Loss{% else %}Breakeven{% endif %}</span></td>
             <td class="{% if r.running_total_profits > 0 %}profit{% elif r.running_total_profits < 0 %}loss{% else %}neutral{% endif %}">{{ '%.2f'|format(r.running_total_profits) }}</td>
             <td><span class="reason {% if r.profit_loss > 0 %}reason-profit{% elif r.profit_loss < 0 %}reason-loss{% else %}reason-neutral{% endif %}">{{ r.reason_for_trade }}</span></td>
           </tr>
           {% else %}
-          <tr><td colspan="9">No records available.</td></tr>
+          <tr><td colspan="11">No records available.</td></tr>
           {% endfor %}
         </tbody>
       </table>

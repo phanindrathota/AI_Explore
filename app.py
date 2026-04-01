@@ -17,7 +17,9 @@ COLUMNS = [
     "ticker",
     "entry_price",
     "exit_price",
+    "expected_return_pct",
     "profit_loss",
+    "profit_loss_pct",
     "running_total_profits",
     "reason_for_trade",
 ]
@@ -34,9 +36,15 @@ def load_logs() -> pd.DataFrame:
     df = pd.read_csv(DATA_FILE)
     if df.empty:
         return pd.DataFrame(columns=COLUMNS)
+    for col in COLUMNS:
+        if col not in df.columns:
+            df[col] = "" if col in {"ticker", "reason_for_trade"} else 0
 
-    for col in ["entry_price", "exit_price", "profit_loss", "running_total_profits"]:
+    for col in ["entry_price", "exit_price", "expected_return_pct", "profit_loss", "running_total_profits"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+    if "profit_loss_pct" not in df.columns:
+        df["profit_loss_pct"] = 0.0
+    df["profit_loss_pct"] = pd.to_numeric(df["profit_loss_pct"], errors="coerce").fillna(0.0)
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["expiration_date"] = pd.to_datetime(df["expiration_date"], errors="coerce")
@@ -61,6 +69,7 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
         "Ticker": "ticker",
         "Entry price": "entry_price",
         "Exit price": "exit_price",
+        "Expected return %": "expected_return_pct",
         "Running total profits": "running_total_profits",
         "Reason for trade": "reason_for_trade",
     }
@@ -69,13 +78,19 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
         if col not in df.columns:
             df[col] = "" if col in {"ticker", "reason_for_trade"} else 0
 
-    for col in ["entry_price", "exit_price", "running_total_profits"]:
+    for col in ["entry_price", "exit_price", "expected_return_pct", "running_total_profits"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["expiration_date"] = pd.to_datetime(df["expiration_date"], errors="coerce")
     df = df.dropna(subset=["date"])
     df["profit_loss"] = df["exit_price"] - df["entry_price"]
+    df["profit_loss_pct"] = df.apply(
+        lambda row: ((row["exit_price"] - row["entry_price"]) / row["entry_price"] * 100)
+        if row["entry_price"]
+        else 0.0,
+        axis=1,
+    )
 
     if (df["running_total_profits"] == 0).all() and not df.empty:
         df["running_total_profits"] = df["profit_loss"].cumsum()
@@ -141,6 +156,7 @@ def index():
     totals = {
         "trade_count": len(filtered),
         "profit_loss": float(filtered["profit_loss"].sum()) if not filtered.empty else 0.0,
+        "avg_return_pct": float(filtered["profit_loss_pct"].mean()) if not filtered.empty else 0.0,
     }
 
     years = sorted(df["date"].dt.year.unique().tolist(), reverse=True) if not df.empty else []
@@ -166,6 +182,7 @@ def add_trade():
     entry = float(request.form.get("entry_price", 0) or 0)
     exit_price = float(request.form.get("exit_price", 0) or 0)
     pnl = exit_price - entry
+    pnl_pct = (pnl / entry * 100) if entry else 0.0
 
     running_total = request.form.get("running_total_profits", "").strip()
     if running_total:
@@ -182,7 +199,9 @@ def add_trade():
                 "ticker": request.form.get("ticker", "").strip().upper(),
                 "entry_price": entry,
                 "exit_price": exit_price,
+                "expected_return_pct": float(request.form.get("expected_return_pct", 0) or 0),
                 "profit_loss": pnl,
+                "profit_loss_pct": pnl_pct,
                 "running_total_profits": running_total_value,
                 "reason_for_trade": request.form.get("reason_for_trade", "").strip(),
             }
